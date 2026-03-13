@@ -241,7 +241,7 @@ body::after {
   <div class="close-emoji reveal-item">🙄</div>
   <h2 class="close-headline reveal-item">Coming <span class="gold">soon</span>.</h2>
   <p class="close-sub reveal-item">
-    iOS and Android. No subscriptions. No ads.<br>
+    iOS and Android.<br>
     No metadata harvesting. <strong>Ever.</strong>
   </p>
   <a id="email-cta" class="email-link reveal-item">
@@ -335,16 +335,24 @@ body::after {
 
   function launchEmoji(startX, startY, vx, vy) {
     if (bp.animFrame) cancelAnimationFrame(bp.animFrame);
-    var heroRect = hero.getBoundingClientRect();
     bp.x = startX; bp.y = startY; bp.vx = vx; bp.vy = vy; bp.isHome = false;
     var margin = 16;
+    var boundsLeft = margin;
+    var boundsRight = hero.offsetWidth - margin;
+    var boundsTop = margin;
+
     var step = function() {
       bp.vx *= 0.98; bp.vy *= 0.98;
       bp.x += bp.vx; bp.y += bp.vy;
-      if (bp.x < margin) { bp.x = margin; bp.vx = Math.abs(bp.vx) * 0.6; }
-      if (bp.x > heroRect.width - margin) { bp.x = heroRect.width - margin; bp.vx = -Math.abs(bp.vx) * 0.6; }
-      if (bp.y < margin) { bp.y = margin; bp.vy = Math.abs(bp.vy) * 0.6; }
-      if (bp.y > heroRect.height - margin) { bp.y = heroRect.height - margin; bp.vy = -Math.abs(bp.vy) * 0.6; }
+      // Bottom boundary = current scroll position + viewport height, relative to hero top
+      var currentScroll = window.scrollY || document.documentElement.scrollTop;
+      var heroTop = hero.offsetTop;
+      var boundsBottom = (currentScroll + window.innerHeight) - heroTop - margin;
+      // Bounce
+      if (bp.x < boundsLeft) { bp.x = boundsLeft; bp.vx = Math.abs(bp.vx) * 0.6; }
+      if (bp.x > boundsRight) { bp.x = boundsRight; bp.vx = -Math.abs(bp.vx) * 0.6; }
+      if (bp.y < boundsTop) { bp.y = boundsTop; bp.vy = Math.abs(bp.vy) * 0.6; }
+      if (bp.y > boundsBottom) { bp.y = boundsBottom; bp.vy = -Math.abs(bp.vy) * 0.6; }
       var speed = Math.sqrt(bp.vx * bp.vx + bp.vy * bp.vy);
       if (speed < 0.3) { positionEmoji(bp.x, bp.y); return; }
       positionEmoji(bp.x, bp.y);
